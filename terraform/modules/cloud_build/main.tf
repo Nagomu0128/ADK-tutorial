@@ -40,4 +40,8 @@ resource "google_cloudbuild_trigger" "this" {
 
   filename      = var.cloudbuild_yaml_path
   substitutions = var.substitutions
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
