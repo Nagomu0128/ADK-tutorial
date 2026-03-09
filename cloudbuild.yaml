@@ -1,0 +1,31 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REPOSITORY_URL}/backend:$COMMIT_SHA'
+      - '-t'
+      - '${_REPOSITORY_URL}/backend:latest'
+      - './backend'
+
+  # Push the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REPOSITORY_URL}/backend'
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image=${_REPOSITORY_URL}/backend:$COMMIT_SHA'
+      - '--region=${_REGION}'
+
+images:
+  - '${_REPOSITORY_URL}/backend:$COMMIT_SHA'
+  - '${_REPOSITORY_URL}/backend:latest'
