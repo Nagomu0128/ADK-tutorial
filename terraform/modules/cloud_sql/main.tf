@@ -33,7 +33,7 @@ resource "google_sql_database_instance" "this" {
       point_in_time_recovery_enabled = false # Disable PITR to save cost
       transaction_log_retention_days = var.enable_backups ? 1 : null
       backup_retention_settings {
-        retained_backups = var.enable_backups ? 3 : null
+        retained_backups = var.enable_backups ? 3 : 1
       }
     }
 
@@ -61,5 +61,5 @@ resource "google_sql_user" "this" {
 
   name     = each.value.name
   instance = google_sql_database_instance.this.name
-  password = each.value.password
+  password = sensitive(each.value.password)
 }

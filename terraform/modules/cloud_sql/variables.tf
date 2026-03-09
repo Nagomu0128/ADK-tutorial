@@ -59,6 +59,5 @@ variable "users" {
     name     = string
     password = string
   }))
-  default   = []
-  sensitive = true
+  default = []
 }

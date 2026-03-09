@@ -153,6 +153,7 @@ module "cloud_run_backend" {
 # ============================================================
 module "cloud_build" {
   source = "../../modules/cloud_build"
+  count  = var.github_config != null ? 1 : 0
 
   trigger_name = "${var.app_name}-${local.env}-deploy"
   region       = var.region

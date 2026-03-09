@@ -8,8 +8,7 @@ variable "secrets" {
     value  = optional(string)
     labels = optional(map(string), {})
   }))
-  default   = []
-  sensitive = true
+  default = []
 }
 
 variable "accessor_service_accounts" {
