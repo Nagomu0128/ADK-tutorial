@@ -32,7 +32,9 @@ backend/
 ├── user-profile-agent/  port 3005 - ADK プロファイル + DB連携
 ├── risk-agent/          port 3006 - ボラティリティ + ADK警告
 ├── report-agent/        port 3007 - ADK パーソナライズドレポート
-└── db/schema.sql        PostgreSQL スキーマ
+├── db/schema.sql        PostgreSQL スキーマ (参照用)
+└── db/migrations/       node-pg-migrate マイグレーション
+    └── 001_initial-schema.sql
 ```
 
 ## REST API
@@ -63,6 +65,10 @@ backend/
 - PostgreSQL (Cloud SQL対応)
 - CLOUD_SQL_CONNECTION_NAME 設定時は Unix socket 接続
 - 7日間TTL: `deleteOldResearch()` がリサーチ実行時に自動クリーンアップ
+- マイグレーション: `node-pg-migrate` 使用
+  - `npm run db:migrate` — マイグレーション適用
+  - `npm run db:migrate:down` — ロールバック
+  - マイグレーションファイル: `db/migrations/`
 
 ## 進捗
 
@@ -94,3 +100,4 @@ FIREBASE_PROJECT_ID     # Firebase Auth
 - 2026-03-10: Phase 1-3 完了。全7エージェント実装。
 - 2026-03-10: Phase 4 完了。@google/adk + @a2a-js/sdk リファクタリング。
 - 2026-03-10: Phase 5 完了。DB CRUD + Firebase Auth + 環境変数 + 7日TTL。全作業完了。
+- 2026-03-10: DBマイグレーション追加。node-pg-migrate + 初期スキーマ。

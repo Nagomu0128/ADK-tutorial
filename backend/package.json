@@ -22,11 +22,16 @@
     "dev:risk": "npm run dev -w risk-agent",
     "dev:report": "npm run dev -w report-agent",
     "build": "npm run build --workspaces --if-present",
-    "lint": "tsc --noEmit --project tsconfig.json"
+    "lint": "tsc --noEmit --project tsconfig.json",
+    "db:migrate": "node db/migrate.mjs up",
+    "db:migrate:down": "node db/migrate.mjs down"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "node-pg-migrate": "^8.0.4"
   }
 }
