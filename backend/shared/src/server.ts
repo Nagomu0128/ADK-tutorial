@@ -9,7 +9,8 @@ export const startServer = (
 ): void => {
   const logger = appLogger(serviceName);
 
-  serve({ fetch: app.fetch, port }, (info) => {
+  const resolvedPort = parseInt(process.env["PORT"] ?? String(port), 10);
+  serve({ fetch: app.fetch, port: resolvedPort }, (info) => {
     logger.info(`${serviceName} running on http://localhost:${info.port}`);
   });
 };
