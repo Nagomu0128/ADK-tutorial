@@ -26,6 +26,9 @@ steps:
       - '--image=${_REPOSITORY_URL}/backend:$COMMIT_SHA'
       - '--region=${_REGION}'
 
+options:
+  logging: CLOUD_LOGGING_ONLY
+
 images:
   - '${_REPOSITORY_URL}/backend:$COMMIT_SHA'
   - '${_REPOSITORY_URL}/backend:latest'
