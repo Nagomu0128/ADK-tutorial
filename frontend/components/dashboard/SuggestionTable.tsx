@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { ThumbsUp, ThumbsDown, ArrowRight } from "lucide-react";
 import { clsx } from "clsx";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import type { InvestmentSuggestion, SuggestionAction } from "@/lib/types";
+import Link from "next/link";
 
 type SuggestionTableProps = {
   readonly suggestions: readonly InvestmentSuggestion[];
@@ -13,11 +14,17 @@ type SuggestionTableProps = {
 
 const actionConfig: Record<
   SuggestionAction,
-  { label: string; variant: "green" | "yellow" | "red" }
+  { label: string; variant: "green" | "yellow" | "red"; borderColor: string }
 > = {
-  buy: { label: "Buy", variant: "green" },
-  hold: { label: "Hold", variant: "yellow" },
-  skip: { label: "Skip", variant: "red" },
+  buy: { label: "Buy", variant: "green", borderColor: "border-l-emerald-500/40" },
+  hold: { label: "Hold", variant: "yellow", borderColor: "border-l-amber-500/40" },
+  skip: { label: "Skip", variant: "red", borderColor: "border-l-red-500/40" },
+};
+
+const confidenceGradient = (percent: number): string => {
+  if (percent >= 70) return "from-emerald-500/80 to-emerald-400/40";
+  if (percent >= 50) return "from-amber-500/80 to-amber-400/40";
+  return "from-slate-500/60 to-slate-400/30";
 };
 
 const SuggestionRow = ({
@@ -30,63 +37,76 @@ const SuggestionRow = ({
   const confidencePercent = Math.round(suggestion.confidence * 100);
 
   return (
-    <tr className="border-b border-card-border last:border-0 transition-colors hover:bg-hover-bg/50">
-      <td className="px-4 py-3">
-        <span className="font-mono text-sm font-semibold text-foreground">
-          {suggestion.symbol}
-        </span>
+    <tr
+      className={clsx(
+        "group border-b border-card-border/50 last:border-0",
+        "transition-all duration-200 hover:bg-white/[0.02]",
+        "border-l-2",
+        config.borderColor
+      )}
+    >
+      <td className="px-4 py-3.5">
+        <Link
+          href={`/stocks/${encodeURIComponent(suggestion.symbol)}`}
+          className="group/link flex items-center gap-1.5"
+        >
+          <span className="font-mono text-sm font-bold text-foreground tracking-wide">
+            {suggestion.symbol}
+          </span>
+          <ArrowRight size={12} className="text-slate-600 opacity-0 transition-all group-hover/link:opacity-100 group-hover/link:text-accent-blue" />
+        </Link>
       </td>
-      <td className="px-4 py-3">
-        <Badge variant={config.variant}>{config.label}</Badge>
+      <td className="px-4 py-3.5">
+        <Badge variant={config.variant} dot>{config.label}</Badge>
       </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-2">
-          <div className="h-1.5 w-16 rounded-full bg-slate-700">
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-800">
             <div
               className={clsx(
-                "h-1.5 rounded-full transition-all duration-500",
-                confidencePercent >= 70 && "bg-emerald-400",
-                confidencePercent >= 50 && confidencePercent < 70 && "bg-amber-400",
-                confidencePercent < 50 && "bg-slate-400"
+                "h-full rounded-full bg-gradient-to-r transition-all duration-700 ease-out",
+                confidenceGradient(confidencePercent)
               )}
               style={{ width: `${confidencePercent}%` }}
             />
           </div>
-          <span className="text-xs text-muted">{confidencePercent}%</span>
+          <span className="min-w-[32px] font-mono text-xs font-semibold text-slate-400">
+            {confidencePercent}%
+          </span>
         </div>
       </td>
-      <td className="px-4 py-3">
-        <p className="max-w-xs text-xs leading-relaxed text-slate-400">
+      <td className="px-4 py-3.5">
+        <p className="max-w-xs text-xs leading-relaxed text-slate-400/90">
           {suggestion.reasoning}
         </p>
       </td>
-      <td className="px-4 py-3">
-        <div className="flex items-center gap-1">
+      <td className="px-4 py-3.5">
+        <div className="flex items-center gap-0.5">
           <button
             type="button"
             onClick={() => setFeedback(true)}
             className={clsx(
-              "rounded-md p-1.5 transition-colors",
+              "rounded-lg p-2 transition-all duration-200",
               feedback === true
-                ? "bg-emerald-500/20 text-emerald-400"
-                : "text-slate-600 hover:bg-hover-bg hover:text-emerald-400"
+                ? "bg-emerald-500/15 text-emerald-400 shadow-sm shadow-emerald-500/10"
+                : "text-slate-600 hover:bg-emerald-500/10 hover:text-emerald-400"
             )}
             title="Helpful"
           >
-            <ThumbsUp size={14} />
+            <ThumbsUp size={13} />
           </button>
           <button
             type="button"
             onClick={() => setFeedback(false)}
             className={clsx(
-              "rounded-md p-1.5 transition-colors",
+              "rounded-lg p-2 transition-all duration-200",
               feedback === false
-                ? "bg-red-500/20 text-red-400"
-                : "text-slate-600 hover:bg-hover-bg hover:text-red-400"
+                ? "bg-red-500/15 text-red-400 shadow-sm shadow-red-500/10"
+                : "text-slate-600 hover:bg-red-500/10 hover:text-red-400"
             )}
             title="Not helpful"
           >
-            <ThumbsDown size={14} />
+            <ThumbsDown size={13} />
           </button>
         </div>
       </td>
@@ -95,16 +115,16 @@ const SuggestionRow = ({
 };
 
 const SuggestionTable = ({ suggestions }: SuggestionTableProps) => (
-  <Card title="Investment Suggestions">
+  <Card title="Investment Suggestions" noPadding>
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-card-border text-left">
-            <th className="px-4 py-2 text-xs font-medium text-muted">Symbol</th>
-            <th className="px-4 py-2 text-xs font-medium text-muted">Action</th>
-            <th className="px-4 py-2 text-xs font-medium text-muted">Confidence</th>
-            <th className="px-4 py-2 text-xs font-medium text-muted">Reasoning</th>
-            <th className="px-4 py-2 text-xs font-medium text-muted">Feedback</th>
+          <tr className="border-b border-card-border/50">
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600">Symbol</th>
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600">Action</th>
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600">Confidence</th>
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600">Reasoning</th>
+            <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600">Feedback</th>
           </tr>
         </thead>
         <tbody>
@@ -114,6 +134,8 @@ const SuggestionTable = ({ suggestions }: SuggestionTableProps) => (
         </tbody>
       </table>
     </div>
+    {/* Bottom padding inside noPadding card */}
+    <div className="h-2" />
   </Card>
 );
 

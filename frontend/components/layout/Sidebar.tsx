@@ -29,17 +29,27 @@ const Sidebar = () => {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-card-border bg-sidebar-bg">
+    <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-card-border bg-sidebar-bg backdrop-blur-xl">
       {/* Logo */}
-      <div className="flex h-16 items-center gap-2.5 border-b border-card-border px-5">
-        <TrendingUp size={24} className="text-accent-blue" />
-        <span className="text-lg font-bold tracking-tight">
-          AI Stock<span className="text-accent-blue"> Advisor</span>
-        </span>
+      <div className="flex h-16 items-center gap-3 border-b border-card-border px-5">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 shadow-lg shadow-blue-500/20">
+          <TrendingUp size={16} className="text-white" />
+        </div>
+        <div className="flex flex-col">
+          <span className="text-sm font-bold tracking-tight text-foreground">
+            AI Stock
+          </span>
+          <span className="text-[10px] font-medium tracking-widest text-accent-blue uppercase">
+            Advisor
+          </span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 px-3 py-5">
+        <p className="mb-3 px-3 text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-600">
+          Menu
+        </p>
         {navItems.map((item) => {
           const isActive =
             item.href === "/"
@@ -50,13 +60,22 @@ const Sidebar = () => {
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150",
+                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-accent-blue/10 text-accent-blue"
-                  : "text-muted hover:bg-hover-bg hover:text-foreground"
+                  ? "bg-accent-blue/8 text-blue-400 shadow-sm shadow-blue-500/5"
+                  : "text-slate-500 hover:bg-hover-bg hover:text-slate-300"
               )}
             >
-              {item.icon}
+              {/* Active indicator bar */}
+              {isActive && (
+                <span className="absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-gradient-to-b from-blue-400 to-cyan-400" />
+              )}
+              <span className={clsx(
+                "transition-colors duration-200",
+                isActive ? "text-blue-400" : "text-slate-600 group-hover:text-slate-400"
+              )}>
+                {item.icon}
+              </span>
               {item.label}
             </Link>
           );
@@ -67,7 +86,7 @@ const Sidebar = () => {
       <div className="border-t border-card-border p-3">
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition-colors duration-150 hover:bg-hover-bg hover:text-foreground"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-hover-bg hover:text-red-400"
         >
           <LogOut size={18} />
           Sign Out

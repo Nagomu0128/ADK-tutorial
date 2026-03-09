@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import { CheckCircle2, Loader2, Clock, XCircle } from "lucide-react";
+import { CheckCircle2, Loader2, Clock, XCircle, ChevronRight } from "lucide-react";
 import type { AgentStatus as AgentStatusType, AgentRunStatus } from "@/lib/types";
 import Card from "@/components/ui/Card";
 
@@ -11,58 +11,95 @@ type AgentStatusProps = {
 
 const statusConfig: Record<
   AgentRunStatus,
-  { icon: React.ReactNode; color: string; label: string }
+  { icon: React.ReactNode; color: string; bgColor: string; borderColor: string; label: string; glowColor: string }
 > = {
   completed: {
-    icon: <CheckCircle2 size={16} />,
+    icon: <CheckCircle2 size={15} />,
     color: "text-emerald-400",
+    bgColor: "bg-emerald-500/5",
+    borderColor: "border-emerald-500/15",
     label: "Done",
+    glowColor: "",
   },
   running: {
-    icon: <Loader2 size={16} className="animate-spin" />,
+    icon: <Loader2 size={15} className="animate-spin" />,
     color: "text-blue-400",
+    bgColor: "bg-blue-500/5",
+    borderColor: "border-blue-500/20",
     label: "Running",
+    glowColor: "shadow-blue-500/10 shadow-md",
   },
   pending: {
-    icon: <Clock size={16} />,
+    icon: <Clock size={15} />,
     color: "text-slate-500",
-    label: "Pending",
+    bgColor: "bg-slate-500/3",
+    borderColor: "border-slate-500/10",
+    label: "Waiting",
+    glowColor: "",
   },
   failed: {
-    icon: <XCircle size={16} />,
+    icon: <XCircle size={15} />,
     color: "text-red-400",
+    bgColor: "bg-red-500/5",
+    borderColor: "border-red-500/15",
     label: "Failed",
+    glowColor: "",
   },
 };
 
-const AgentStatusItem = ({ agent }: { readonly agent: AgentStatusType }) => {
+const AgentStatusItem = ({
+  agent,
+  index,
+}: {
+  readonly agent: AgentStatusType;
+  readonly index: number;
+}) => {
   const config = statusConfig[agent.status];
+  const delayClass = `delay-${index * 75}`;
+
   return (
     <div
       className={clsx(
-        "flex items-center gap-2 rounded-lg border px-3 py-2 transition-all duration-300",
-        agent.status === "completed" && "border-emerald-500/20 bg-emerald-500/5",
-        agent.status === "running" && "border-blue-500/20 bg-blue-500/5",
-        agent.status === "pending" && "border-slate-500/20 bg-slate-500/5",
-        agent.status === "failed" && "border-red-500/20 bg-red-500/5"
+        "animate-fade-in relative flex flex-col items-center gap-2 rounded-xl border px-3 py-3 transition-all duration-500",
+        config.bgColor,
+        config.borderColor,
+        config.glowColor,
+        agent.status === "running" && "animate-pulse-glow",
+        delayClass
       )}
     >
-      <span className={config.color}>{config.icon}</span>
-      <span className="text-sm font-medium text-foreground">
+      {/* Status icon */}
+      <div className={clsx("flex items-center justify-center", config.color)}>
+        {config.icon}
+      </div>
+      {/* Agent name */}
+      <span className="text-center text-[11px] font-medium text-slate-300 leading-tight">
         {agent.agentName}
       </span>
-      <span className={clsx("ml-auto text-xs", config.color)}>
+      {/* Status label */}
+      <span className={clsx("text-[10px] font-medium", config.color)}>
         {config.label}
       </span>
     </div>
   );
 };
 
+const ConnectorArrow = () => (
+  <div className="hidden lg:flex items-center self-center text-slate-700">
+    <ChevronRight size={14} />
+  </div>
+);
+
 const AgentStatusDisplay = ({ statuses }: AgentStatusProps) => (
-  <Card title="Agent Status">
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-      {statuses.map((agent) => (
-        <AgentStatusItem key={agent.agentName} agent={agent} />
+  <Card title="Agent Pipeline">
+    <div className="flex flex-wrap items-center justify-center gap-2 lg:flex-nowrap lg:gap-1">
+      {statuses.map((agent, i) => (
+        <div key={agent.agentName} className="contents">
+          <div className="w-[calc(33%-8px)] lg:w-0 lg:flex-1">
+            <AgentStatusItem agent={agent} index={i} />
+          </div>
+          {i < statuses.length - 1 && <ConnectorArrow />}
+        </div>
       ))}
     </div>
   </Card>

@@ -1,7 +1,7 @@
 "use client";
 
 import { use } from "react";
-import { ArrowLeft, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { ArrowLeft, TrendingUp, TrendingDown, Minus, Activity, Brain, Shield } from "lucide-react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Card from "@/components/ui/Card";
@@ -40,7 +40,7 @@ const StockDetailPage = (props: StockDetailPageProps) => {
         <div className="flex items-center justify-center p-20">
           <div className="text-center">
             <p className="text-lg text-muted">Stock not found: {symbol}</p>
-            <Link href="/" className="mt-4 text-sm text-accent-blue hover:underline">
+            <Link href="/" className="mt-4 inline-block text-sm text-accent-blue hover:underline">
               Back to Dashboard
             </Link>
           </div>
@@ -61,27 +61,27 @@ const StockDetailPage = (props: StockDetailPageProps) => {
         <div className="flex items-center gap-4">
           <Link
             href="/"
-            className="rounded-lg p-2 text-muted transition-colors hover:bg-hover-bg hover:text-foreground"
+            className="rounded-xl p-2.5 text-slate-500 transition-all duration-200 hover:bg-hover-bg hover:text-foreground"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft size={18} />
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-foreground">{symbol}</h1>
-              <Badge variant={trend.variant}>
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">{symbol}</h1>
+              <Badge variant={trend.variant} dot>
                 <span className="flex items-center gap-1">
                   {trend.icon} {trend.label}
                 </span>
               </Badge>
             </div>
             <div className="mt-1 flex items-baseline gap-3">
-              <span className="text-3xl font-bold text-foreground">
-                {isJP ? "¥" : "$"}
+              <span className="text-3xl font-bold text-foreground font-mono tracking-tight">
+                {isJP ? "\u00a5" : "$"}
                 {isJP ? stock.closingPrice.toLocaleString() : stock.closingPrice.toFixed(2)}
               </span>
               <span
                 className={clsx(
-                  "text-lg font-semibold",
+                  "text-lg font-semibold font-mono",
                   isPositive ? "text-emerald-400" : "text-red-400"
                 )}
               >
@@ -93,30 +93,35 @@ const StockDetailPage = (props: StockDetailPageProps) => {
         </div>
 
         {/* Chart */}
-        <StockChart
-          symbol={stock.symbol}
-          priceHistory={stock.priceHistory}
-          trend={stock.trend}
-        />
+        <div className="animate-slide-up">
+          <StockChart
+            symbol={stock.symbol}
+            priceHistory={stock.priceHistory}
+            trend={stock.trend}
+          />
+        </div>
 
         {/* Technical Indicators + Sentiment + Suggestion */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Technical Indicators */}
-          <Card title="Technical Indicators">
-            <div className="space-y-3">
+          <Card
+            title="Technical Indicators"
+            accent="blue"
+          >
+            <div className="space-y-2.5">
               {[
-                { label: "SMA 20", value: isJP ? `¥${stock.sma20.toLocaleString()}` : `$${stock.sma20.toFixed(2)}` },
-                { label: "SMA 50", value: isJP ? `¥${stock.sma50.toLocaleString()}` : `$${stock.sma50.toFixed(2)}` },
-                { label: "RSI (14)", value: stock.rsi14.toFixed(1), highlight: stock.rsi14 > 70 || stock.rsi14 < 30 },
-                { label: "MACD Line", value: stock.macd.line.toFixed(2) },
-                { label: "MACD Signal", value: stock.macd.signal.toFixed(2) },
-                { label: "MACD Histogram", value: stock.macd.histogram.toFixed(2) },
-                { label: "BB Upper", value: isJP ? `¥${stock.bollingerBands.upper.toLocaleString()}` : `$${stock.bollingerBands.upper.toFixed(2)}` },
-                { label: "BB Middle", value: isJP ? `¥${stock.bollingerBands.middle.toLocaleString()}` : `$${stock.bollingerBands.middle.toFixed(2)}` },
-                { label: "BB Lower", value: isJP ? `¥${stock.bollingerBands.lower.toLocaleString()}` : `$${stock.bollingerBands.lower.toFixed(2)}` },
+                { label: "SMA 20", value: isJP ? `\u00a5${stock.sma20.toLocaleString()}` : `$${stock.sma20.toFixed(2)}`, group: "MA" },
+                { label: "SMA 50", value: isJP ? `\u00a5${stock.sma50.toLocaleString()}` : `$${stock.sma50.toFixed(2)}`, group: "MA" },
+                { label: "RSI (14)", value: stock.rsi14.toFixed(1), highlight: stock.rsi14 > 70 || stock.rsi14 < 30, group: "Momentum" },
+                { label: "MACD Line", value: stock.macd.line.toFixed(2), group: "MACD" },
+                { label: "MACD Signal", value: stock.macd.signal.toFixed(2), group: "MACD" },
+                { label: "MACD Hist", value: stock.macd.histogram.toFixed(2), group: "MACD" },
+                { label: "BB Upper", value: isJP ? `\u00a5${stock.bollingerBands.upper.toLocaleString()}` : `$${stock.bollingerBands.upper.toFixed(2)}`, group: "BB" },
+                { label: "BB Middle", value: isJP ? `\u00a5${stock.bollingerBands.middle.toLocaleString()}` : `$${stock.bollingerBands.middle.toFixed(2)}`, group: "BB" },
+                { label: "BB Lower", value: isJP ? `\u00a5${stock.bollingerBands.lower.toLocaleString()}` : `$${stock.bollingerBands.lower.toFixed(2)}`, group: "BB" },
               ].map((ind) => (
-                <div key={ind.label} className="flex items-center justify-between">
-                  <span className="text-xs text-muted">{ind.label}</span>
+                <div key={ind.label} className="flex items-center justify-between rounded-lg px-1 py-0.5">
+                  <span className="text-[11px] text-slate-500">{ind.label}</span>
                   <span
                     className={clsx(
                       "font-mono text-sm font-medium",
@@ -132,18 +137,21 @@ const StockDetailPage = (props: StockDetailPageProps) => {
 
           {/* Sentiment */}
           {sentiment && (
-            <Card title="Sentiment Analysis">
-              <div className="flex flex-col items-center gap-4">
+            <Card title="Sentiment Analysis" accent="purple">
+              <div className="flex flex-col items-center gap-5">
                 <Gauge value={sentiment.sentimentScore} size="lg" />
+
+                <div className="h-px w-full bg-gradient-to-r from-transparent via-card-border to-transparent" />
+
                 <div className="w-full space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted">Score</span>
-                    <span className="font-mono text-sm font-medium text-foreground">
+                    <span className="text-[11px] text-slate-500">Score</span>
+                    <span className="font-mono text-sm font-semibold text-foreground">
                       {sentiment.sentimentScore.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted">Label</span>
+                    <span className="text-[11px] text-slate-500">Label</span>
                     <Badge
                       variant={
                         sentiment.sentimentScore >= 0.2
@@ -152,16 +160,17 @@ const StockDetailPage = (props: StockDetailPageProps) => {
                             ? "yellow"
                             : "red"
                       }
+                      dot
                     >
                       {sentiment.sentimentLabel.replace("_", " ")}
                     </Badge>
                   </div>
                   {sentiment.divergenceSignal && (
-                    <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3">
-                      <p className="text-xs font-medium text-amber-400">
+                    <div className="rounded-xl border border-amber-500/10 bg-amber-500/3 p-3">
+                      <p className="text-[11px] font-semibold text-amber-400">
                         Divergence Signal
                       </p>
-                      <p className="mt-1 text-xs text-amber-200/80">
+                      <p className="mt-1 text-[11px] leading-relaxed text-amber-200/70">
                         {sentiment.divergenceSignal}
                       </p>
                     </div>
@@ -173,7 +182,7 @@ const StockDetailPage = (props: StockDetailPageProps) => {
 
           {/* Suggestion */}
           {suggestion && (
-            <Card title="AI Suggestion">
+            <Card title="AI Suggestion" accent="green">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Badge
@@ -184,24 +193,31 @@ const StockDetailPage = (props: StockDetailPageProps) => {
                           ? "red"
                           : "yellow"
                     }
+                    dot
                   >
                     {suggestion.action.toUpperCase()}
                   </Badge>
-                  <span className="text-sm text-muted">
+                  <span className="font-mono text-xs text-slate-500">
                     Confidence: {Math.round(suggestion.confidence * 100)}%
                   </span>
                 </div>
-                <p className="text-sm leading-relaxed text-slate-300">
+                <p className="text-[13px] leading-relaxed text-slate-300/90">
                   {suggestion.reasoning}
                 </p>
                 <div className="space-y-2">
-                  <div className="rounded-lg bg-slate-800/50 p-3">
-                    <p className="text-xs font-medium text-muted">Sentiment Basis</p>
-                    <p className="mt-1 text-xs text-slate-300">{suggestion.sentimentBasis}</p>
+                  <div className="flex gap-2.5 rounded-xl border border-card-border/50 bg-white/[0.01] p-3">
+                    <Brain size={14} className="mt-0.5 shrink-0 text-purple-400/60" />
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">Sentiment Basis</p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{suggestion.sentimentBasis}</p>
+                    </div>
                   </div>
-                  <div className="rounded-lg bg-slate-800/50 p-3">
-                    <p className="text-xs font-medium text-muted">Risk Basis</p>
-                    <p className="mt-1 text-xs text-slate-300">{suggestion.riskBasis}</p>
+                  <div className="flex gap-2.5 rounded-xl border border-card-border/50 bg-white/[0.01] p-3">
+                    <Shield size={14} className="mt-0.5 shrink-0 text-amber-400/60" />
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-600">Risk Basis</p>
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-400">{suggestion.riskBasis}</p>
+                    </div>
                   </div>
                 </div>
               </div>

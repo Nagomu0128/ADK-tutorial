@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Plus, X } from "lucide-react";
-import Button from "@/components/ui/Button";
+import { Search, Plus, X, Globe } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Card from "@/components/ui/Card";
 import type { Market, WatchlistItem } from "@/lib/types";
@@ -58,15 +57,28 @@ const SymbolSearch = ({
     setShowSuggestions(false);
   };
 
+  const capacityPercent = (watchlistItems.length / maxItems) * 100;
+
   return (
     <Card title="Symbol Search" titleRight={
-      <span className="text-xs text-muted">
-        {watchlistItems.length}/{maxItems} symbols
-      </span>
+      <div className="flex items-center gap-2">
+        <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-800">
+          <div
+            className={clsx(
+              "h-full rounded-full transition-all duration-500",
+              capacityPercent > 80 ? "bg-amber-500/60" : "bg-blue-500/50"
+            )}
+            style={{ width: `${capacityPercent}%` }}
+          />
+        </div>
+        <span className="font-mono text-[10px] text-slate-600">
+          {watchlistItems.length}/{maxItems}
+        </span>
+      </div>
     }>
       {/* Search input */}
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+        <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600" />
         <input
           type="text"
           value={query}
@@ -76,30 +88,37 @@ const SymbolSearch = ({
           }}
           onFocus={() => setShowSuggestions(true)}
           placeholder="Search symbol or company name..."
-          className="w-full rounded-lg border border-card-border bg-background py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-slate-600 focus:border-accent-blue focus:outline-none"
+          className="w-full rounded-xl border border-card-border bg-background/50 py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-slate-600 transition-all duration-200 focus:border-blue-500/40 focus:outline-none focus:ring-1 focus:ring-blue-500/20"
         />
 
         {/* Suggestions dropdown */}
         {showSuggestions && filteredSymbols.length > 0 && (
-          <div className="absolute left-0 right-0 top-full z-10 mt-1 rounded-lg border border-card-border bg-sidebar-bg shadow-xl">
+          <div className="absolute left-0 right-0 top-full z-10 mt-2 overflow-hidden rounded-xl border border-card-border bg-card-bg-solid/95 shadow-2xl shadow-black/30 backdrop-blur-xl">
             {filteredSymbols.map((s) => (
               <button
                 key={s.symbol}
                 type="button"
                 onClick={() => handleAdd(s.symbol, s.market)}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left transition-colors hover:bg-hover-bg"
+                className="flex w-full items-center justify-between px-4 py-3 text-left transition-all duration-150 hover:bg-white/[0.03]"
               >
-                <div>
-                  <span className="font-mono text-sm font-semibold text-foreground">
-                    {s.symbol}
-                  </span>
-                  <span className="ml-2 text-xs text-muted">{s.name}</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-800 text-slate-400">
+                    <Globe size={13} />
+                  </div>
+                  <div>
+                    <span className="font-mono text-sm font-bold text-foreground tracking-wide">
+                      {s.symbol}
+                    </span>
+                    <span className="ml-2 text-xs text-slate-500">{s.name}</span>
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant={s.market === "US" ? "blue" : "purple"}>
                     {s.market}
                   </Badge>
-                  <Plus size={14} className="text-accent-blue" />
+                  <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
+                    <Plus size={13} />
+                  </div>
                 </div>
               </button>
             ))}
@@ -107,28 +126,28 @@ const SymbolSearch = ({
         )}
       </div>
 
-      {/* Current watchlist */}
-      <div className="mt-4 space-y-1.5">
-        {watchlistItems.map((item) => (
+      {/* Current watchlist as cards */}
+      <div className="mt-4 space-y-2">
+        {watchlistItems.map((item, index) => (
           <div
             key={item.symbol}
-            className="flex items-center justify-between rounded-lg border border-card-border px-3 py-2"
+            className={clsx(
+              "animate-fade-in flex items-center justify-between rounded-xl border border-card-border/50 bg-white/[0.01] px-4 py-2.5 transition-all duration-200 hover:border-card-border",
+              `delay-${Math.min(index * 75, 450)}`
+            )}
           >
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-sm font-semibold text-foreground">
+            <div className="flex items-center gap-3">
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-800/50 font-mono text-[10px] font-bold text-slate-400">
+                {item.market}
+              </span>
+              <span className="font-mono text-sm font-bold text-foreground tracking-wide">
                 {item.symbol}
               </span>
-              <Badge variant={item.market === "US" ? "blue" : "purple"}>
-                {item.market}
-              </Badge>
             </div>
             <button
               type="button"
               onClick={() => onRemove(item.symbol)}
-              className={clsx(
-                "rounded-md p-1 text-slate-600 transition-colors",
-                "hover:bg-red-500/10 hover:text-red-400"
-              )}
+              className="rounded-lg p-1.5 text-slate-700 transition-all duration-200 hover:bg-red-500/10 hover:text-red-400"
             >
               <X size={14} />
             </button>
