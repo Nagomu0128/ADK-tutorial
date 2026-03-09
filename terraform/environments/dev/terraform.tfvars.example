@@ -1,0 +1,20 @@
+project_id  = "your-gcp-project-id"
+region      = "asia-northeast1"
+app_name    = "adk-tutorial"
+db_user     = "app"
+db_password = "CHANGE_ME"
+
+# Optional: Cloud Run service account
+# cloud_run_service_account_email = "cloud-run@your-project.iam.gserviceaccount.com"
+
+# Optional: Allow access to Cloud SQL from specific IPs
+# sql_authorized_networks = [
+#   { name = "office", cidr = "203.0.113.0/32" }
+# ]
+
+# Optional: GitHub trigger for Cloud Build
+# github_config = {
+#   owner          = "your-github-org"
+#   repo           = "adk-tutorial"
+#   branch_pattern = "^main$"
+# }
