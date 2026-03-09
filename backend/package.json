@@ -1,25 +1,32 @@
 {
-  "name": "backend",
+  "name": "stock-advisor-backend",
+  "version": "1.0.0",
+  "private": true,
   "type": "module",
+  "workspaces": [
+    "shared",
+    "orchestrator",
+    "news-agent",
+    "stock-agent",
+    "sentiment-agent",
+    "user-profile-agent",
+    "risk-agent",
+    "report-agent"
+  ],
   "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
-  },
-  "dependencies": {
-    "@hono/node-server": "^1.19.11",
-    "hono": "^4.12.5"
+    "dev:orchestrator": "npm run dev -w orchestrator",
+    "dev:news": "npm run dev -w news-agent",
+    "dev:stock": "npm run dev -w stock-agent",
+    "dev:sentiment": "npm run dev -w sentiment-agent",
+    "dev:profile": "npm run dev -w user-profile-agent",
+    "dev:risk": "npm run dev -w risk-agent",
+    "dev:report": "npm run dev -w report-agent",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "tsc --noEmit --project tsconfig.json"
   },
   "devDependencies": {
-    "@google/adk-devtools": "^0.3.0",
     "@types/node": "^20.11.17",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
-  },
-  "version": "1.0.0",
-  "description": "``` npm install npm run dev ```",
-  "main": "agent.ts",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  }
 }

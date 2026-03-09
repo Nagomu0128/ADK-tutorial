@@ -7,10 +7,8 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["node"],
-    "outDir": "./dist",
-    "rootDir": ".",
     "resolveJsonModule": true,
-    "declaration": true
-  },
-  "exclude": ["node_modules", "dist"]
+    "declaration": true,
+    "esModuleInterop": true
+  }
 }
