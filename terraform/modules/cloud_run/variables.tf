@@ -82,3 +82,8 @@ variable "allow_unauthenticated" {
   type    = bool
   default = false
 }
+
+variable "deletion_protection" {
+  type    = bool
+  default = true
+}

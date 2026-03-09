@@ -1,7 +1,8 @@
 resource "google_cloud_run_v2_service" "this" {
-  name     = var.service_name
-  location = var.region
-  ingress  = var.ingress
+  name                = var.service_name
+  location            = var.region
+  ingress             = var.ingress
+  deletion_protection = var.deletion_protection
 
   template {
     # Cost optimization: scale to zero, limit max instances

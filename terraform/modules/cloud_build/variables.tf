@@ -6,13 +6,17 @@ variable "region" {
   type = string
 }
 
+variable "project_id" {
+  type = string
+}
+
 variable "github_config" {
   type = object({
-    owner          = string
-    repo           = string
-    branch_pattern = string
+    connection_name = string
+    owner           = string
+    repo            = string
+    branch_pattern  = string
   })
-  default = null
 }
 
 variable "cloudbuild_yaml_path" {

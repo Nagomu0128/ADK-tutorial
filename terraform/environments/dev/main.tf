@@ -8,11 +8,10 @@ terraform {
     }
   }
 
-  # Uncomment to use remote state
-  # backend "gcs" {
-  #   bucket = "YOUR_PROJECT_ID-tfstate"
-  #   prefix = "dev"
-  # }
+  backend "gcs" {
+    bucket = "adk-tutorial-489719-tfstate"
+    prefix = "dev"
+  }
 }
 
 provider "google" {
@@ -123,6 +122,7 @@ module "cloud_run_backend" {
 
   container_port        = 8080
   allow_unauthenticated = true
+  deletion_protection   = false
   service_account_email = var.cloud_run_service_account_email
 
   env_vars = [
@@ -156,9 +156,15 @@ module "cloud_build" {
   count  = var.github_config != null ? 1 : 0
 
   trigger_name = "${var.app_name}-${local.env}-deploy"
+  project_id   = var.project_id
   region       = var.region
 
-  github_config = var.github_config
+  github_config = {
+    connection_name = "${var.app_name}-${local.env}-github"
+    owner           = var.github_config.owner
+    repo            = var.github_config.repo
+    branch_pattern  = var.github_config.branch_pattern
+  }
 
   cloudbuild_yaml_path = "cloudbuild.yaml"
   included_files       = ["backend/**"]
