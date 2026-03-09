@@ -1,36 +1,65 @@
 import { Hono } from "hono";
-import { appLogger } from "@stock-advisor/shared";
+import { appLogger, type Market } from "@stock-advisor/shared";
+import { getAuthUser } from "../middleware/auth.js";
+import { findOrCreateUser } from "../infra/user-repo.js";
+import { getWatchlist, addSymbol, removeSymbol } from "../infra/watchlist-repo.js";
 
 export const watchlistRoutes = new Hono();
 const logger = appLogger("orchestrator:watchlist");
 
-// GET /v1/watchlist - Get user's watchlist
+// GET /v1/watchlist
 watchlistRoutes.get("/", async (c) => {
-  // TODO: Get userId from Firebase Auth, fetch from DB
-  logger.info("Fetching watchlist");
-  return c.json({
-    id: "demo-watchlist",
-    userId: "demo-user",
-    symbols: [
-      { symbol: "AAPL", market: "US", addedAt: new Date().toISOString() },
-      { symbol: "GOOGL", market: "US", addedAt: new Date().toISOString() },
-      { symbol: "7203.T", market: "JP", addedAt: new Date().toISOString() },
-    ],
-  });
+  const authUser = getAuthUser(c);
+
+  const userResult = await findOrCreateUser(authUser.uid, authUser.email);
+  if (userResult.isErr()) {
+    return c.json({ error: "Failed to resolve user" }, 500);
+  }
+
+  const result = await getWatchlist(userResult.value.id);
+
+  return result.match(
+    (watchlist) => c.json(watchlist),
+    (error) => c.json({ error: error.message }, 500),
+  );
 });
 
-// POST /v1/watchlist/symbols - Add symbol
+// POST /v1/watchlist/symbols
 watchlistRoutes.post("/symbols", async (c) => {
-  const body = await c.req.json<{ symbol: string; market: "US" | "JP" }>();
-  logger.info("Adding symbol to watchlist", { symbol: body.symbol });
-  // TODO: Save to DB
-  return c.json({ success: true, symbol: body.symbol, market: body.market }, 201);
+  const authUser = getAuthUser(c);
+  const body = await c.req.json<{ symbol: string; market: Market }>();
+
+  logger.info("Adding symbol", { uid: authUser.uid, symbol: body.symbol });
+
+  const userResult = await findOrCreateUser(authUser.uid, authUser.email);
+  if (userResult.isErr()) {
+    return c.json({ error: "Failed to resolve user" }, 500);
+  }
+
+  const result = await addSymbol(userResult.value.id, body.symbol, body.market);
+
+  return result.match(
+    (item) => c.json({ success: true, ...item }, 201),
+    (error) => c.json({ error: error.message }, 400),
+  );
 });
 
-// DELETE /v1/watchlist/symbols/:symbol - Remove symbol
+// DELETE /v1/watchlist/symbols/:symbol
 watchlistRoutes.delete("/symbols/:symbol", async (c) => {
+  const authUser = getAuthUser(c);
   const symbol = c.req.param("symbol");
-  logger.info("Removing symbol from watchlist", { symbol });
-  // TODO: Remove from DB
-  return c.json({ success: true, symbol });
+
+  logger.info("Removing symbol", { uid: authUser.uid, symbol });
+
+  const userResult = await findOrCreateUser(authUser.uid, authUser.email);
+  if (userResult.isErr()) {
+    return c.json({ error: "Failed to resolve user" }, 500);
+  }
+
+  const result = await removeSymbol(userResult.value.id, symbol);
+
+  return result.match(
+    () => c.json({ success: true, symbol }),
+    (error) => c.json({ error: error.message }, 500),
+  );
 });

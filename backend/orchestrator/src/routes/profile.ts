@@ -1,35 +1,62 @@
 import { Hono } from "hono";
-import { appLogger } from "@stock-advisor/shared";
+import { appLogger, type InvestmentStyle, type RiskTolerance, type ExperienceLevel } from "@stock-advisor/shared";
+import { getAuthUser } from "../middleware/auth.js";
+import { findOrCreateUser } from "../infra/user-repo.js";
+import { findProfileByUserId, upsertProfile } from "../infra/profile-repo.js";
 
 export const profileRoutes = new Hono();
 const logger = appLogger("orchestrator:profile");
 
-// GET /v1/profile - Get user profile
+// GET /v1/profile
 profileRoutes.get("/", async (c) => {
-  // TODO: Get userId from Firebase Auth, fetch from DB
-  logger.info("Fetching user profile");
-  return c.json({
-    id: "demo-profile",
-    userId: "demo-user",
-    investmentStyle: "long_term",
-    riskTolerance: "balanced",
-    experienceLevel: "beginner",
-    interestedSectors: ["technology", "healthcare"],
-    watchThemes: ["AI", "EV"],
-    updatedAt: new Date().toISOString(),
-  });
+  const authUser = getAuthUser(c);
+
+  const userResult = await findOrCreateUser(authUser.uid, authUser.email);
+  if (userResult.isErr()) {
+    return c.json({ error: "Failed to resolve user" }, 500);
+  }
+
+  const result = await findProfileByUserId(userResult.value.id);
+
+  return result.match(
+    (profile) => {
+      if (!profile) {
+        return c.json({
+          investmentStyle: "long_term",
+          riskTolerance: "balanced",
+          experienceLevel: "beginner",
+          interestedSectors: [],
+          watchThemes: [],
+        });
+      }
+      return c.json(profile);
+    },
+    (error) => c.json({ error: error.message }, 500),
+  );
 });
 
-// PUT /v1/profile - Update user profile
+// PUT /v1/profile
 profileRoutes.put("/", async (c) => {
+  const authUser = getAuthUser(c);
   const body = await c.req.json<{
-    investmentStyle?: string;
-    riskTolerance?: string;
-    experienceLevel?: string;
+    investmentStyle?: InvestmentStyle;
+    riskTolerance?: RiskTolerance;
+    experienceLevel?: ExperienceLevel;
     interestedSectors?: string[];
     watchThemes?: string[];
   }>();
-  logger.info("Updating user profile", body);
-  // TODO: Save to DB
-  return c.json({ success: true, ...body });
+
+  logger.info("Updating profile", { uid: authUser.uid });
+
+  const userResult = await findOrCreateUser(authUser.uid, authUser.email);
+  if (userResult.isErr()) {
+    return c.json({ error: "Failed to resolve user" }, 500);
+  }
+
+  const result = await upsertProfile(userResult.value.id, body);
+
+  return result.match(
+    (profile) => c.json(profile),
+    (error) => c.json({ error: error.message }, 500),
+  );
 });

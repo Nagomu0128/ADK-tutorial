@@ -6,6 +6,7 @@ import {
   appLogger,
   type UserProfile,
   runAgentOnce,
+  query,
 } from "@stock-advisor/shared";
 
 export const ProfileError = errorBuilder("ProfileError");
@@ -22,23 +23,56 @@ type ProfileOutput = {
   readonly preferenceSummary: string;
 };
 
-// TODO: Replace with actual DB query
+type ProfileRow = {
+  readonly id: string;
+  readonly user_id: string;
+  readonly investment_style: UserProfile["investmentStyle"];
+  readonly risk_tolerance: UserProfile["riskTolerance"];
+  readonly experience_level: UserProfile["experienceLevel"];
+  readonly interested_sectors: readonly string[];
+  readonly watch_themes: readonly string[];
+  readonly preference_model: Record<string, unknown>;
+  readonly updated_at: string;
+};
+
+const defaultProfile = (userId: string): UserProfile => ({
+  id: crypto.randomUUID(),
+  userId,
+  investmentStyle: "long_term",
+  riskTolerance: "balanced",
+  experienceLevel: "beginner",
+  interestedSectors: ["technology", "healthcare"],
+  watchThemes: ["AI", "EV"],
+  preferenceModel: {},
+  updatedAt: new Date().toISOString(),
+});
+
 const fetchProfileFromDB = (
   userId: string,
 ): ResultAsync<UserProfile, ProfileError> =>
   ResultAsync.fromPromise(
-    Promise.resolve({
-      id: crypto.randomUUID(),
-      userId,
-      investmentStyle: "long_term" as const,
-      riskTolerance: "balanced" as const,
-      experienceLevel: "beginner" as const,
-      interestedSectors: ["technology", "healthcare"],
-      watchThemes: ["AI", "EV"],
-      preferenceModel: {},
-      updatedAt: new Date().toISOString(),
+    query<ProfileRow>(
+      "SELECT * FROM user_profiles WHERE user_id = $1",
+      [userId],
+    ).then((result) => {
+      const row = result.rows[0];
+      if (!row) return defaultProfile(userId);
+      return {
+        id: row.id,
+        userId: row.user_id,
+        investmentStyle: row.investment_style,
+        riskTolerance: row.risk_tolerance,
+        experienceLevel: row.experience_level,
+        interestedSectors: row.interested_sectors,
+        watchThemes: row.watch_themes,
+        preferenceModel: row.preference_model,
+        updatedAt: row.updated_at,
+      };
     }),
     ProfileError.handle,
+  ).orElse(() =>
+    // Fallback if DB is not available
+    ResultAsync.fromSafePromise(Promise.resolve(defaultProfile(userId))),
   );
 
 const generatePreferenceSummary = (

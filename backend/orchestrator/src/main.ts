@@ -1,16 +1,21 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { startServer } from "@stock-advisor/shared";
+import { startServer, loadEnv } from "@stock-advisor/shared";
+import { authMiddleware } from "./middleware/auth.js";
 import { researchRoutes } from "./routes/research.js";
 import { watchlistRoutes } from "./routes/watchlist.js";
 import { profileRoutes } from "./routes/profile.js";
 import { feedbackRoutes } from "./routes/feedback.js";
 
+loadEnv();
+
 const app = new Hono();
 
 app.use("/*", cors());
-
 app.get("/health", (c) => c.json({ status: "ok", service: "orchestrator" }));
+
+// Auth middleware for all /v1 routes
+app.use("/v1/*", authMiddleware);
 
 // REST API routes
 app.route("/v1/research", researchRoutes);
