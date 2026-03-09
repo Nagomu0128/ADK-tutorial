@@ -9,6 +9,14 @@ import { getFirebaseAuth } from "./firebase";
 
 const googleProvider = new GoogleAuthProvider();
 
+/**
+ * Check if Firebase is configured with valid credentials.
+ */
+export const isFirebaseConfigured = (): boolean => {
+  const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+  return typeof window !== "undefined" && !!apiKey && apiKey.length > 0;
+};
+
 export const signInWithGoogle = async (): Promise<User> => {
   const auth = getFirebaseAuth();
   if (!auth) throw new Error("Firebase not initialized");
