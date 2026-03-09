@@ -42,7 +42,7 @@ const statusConfig: Record<
 const HistoryPage = () => (
   <div className="min-h-screen">
     <Header />
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <h1 className="mb-2 text-2xl font-bold text-foreground tracking-tight">
         Analysis History
       </h1>

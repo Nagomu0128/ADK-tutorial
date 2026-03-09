@@ -100,7 +100,7 @@ const StockItem = ({ stock, index }: { readonly stock: StockResult; readonly ind
             <ChevronRight size={12} className="text-slate-700 opacity-0 transition-all group-hover:opacity-100 group-hover:text-accent-blue" />
           </div>
           <span className="text-[10px] text-slate-600">
-            RSI {stock.rsi14.toFixed(1)}
+            RSI {stock.indicators.rsi14.toFixed(1)}
           </span>
         </div>
       </div>

@@ -62,7 +62,7 @@ const DashboardPage = () => {
         isResearching={isResearching}
       />
 
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
         {/* Agent Status */}
         {(isResearching || showResults) && (
           <AgentStatusDisplay statuses={agentStatuses} />

@@ -11,6 +11,7 @@ import {
   TrendingUp,
   LogOut,
 } from "lucide-react";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 type NavItem = {
   readonly href: string;
@@ -27,6 +28,11 @@ const navItems: readonly NavItem[] = [
 
 const Sidebar = () => {
   const pathname = usePathname();
+  const { user, logOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await logOut();
+  };
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-60 flex-col border-r border-card-border bg-sidebar-bg backdrop-blur-xl">
@@ -82,10 +88,34 @@ const Sidebar = () => {
         })}
       </nav>
 
-      {/* Footer */}
+      {/* User info + Sign Out */}
       <div className="border-t border-card-border p-3">
+        {user && (
+          <div className="mb-2 flex items-center gap-2.5 rounded-xl px-3 py-2">
+            {user.photoURL ? (
+              <img
+                src={user.photoURL}
+                alt=""
+                className="h-7 w-7 rounded-full ring-1 ring-card-border"
+              />
+            ) : (
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/15 text-blue-400">
+                <User size={13} />
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[11px] font-medium text-slate-300">
+                {user.displayName ?? "User"}
+              </p>
+              <p className="truncate text-[10px] text-slate-600">
+                {user.email}
+              </p>
+            </div>
+          </div>
+        )}
         <button
           type="button"
+          onClick={handleSignOut}
           className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-hover-bg hover:text-red-400"
         >
           <LogOut size={18} />

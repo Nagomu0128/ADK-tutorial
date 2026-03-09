@@ -22,7 +22,7 @@ const ProfilePage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="mx-auto max-w-2xl p-6">
+      <div className="mx-auto max-w-2xl p-4 sm:p-6">
         <div className="mb-8 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 text-blue-400 ring-1 ring-blue-500/20">
             <User size={18} />

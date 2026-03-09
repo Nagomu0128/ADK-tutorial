@@ -9,7 +9,7 @@ export type ImpactLevel = "high" | "medium" | "low";
 export type SentimentLabel = "very_bearish" | "bearish" | "neutral" | "bullish" | "very_bullish";
 export type Trend = "bullish" | "bearish" | "neutral";
 export type ResearchStatus = "pending" | "in_progress" | "completed" | "failed";
-export type AgentRunStatus = "pending" | "running" | "completed" | "failed";
+export type AgentStatusValue = "pending" | "running" | "completed" | "failed";
 export type SuggestionAction = "buy" | "hold" | "skip";
 export type RiskAlignment = "aligned" | "over_risk" | "under_risk";
 export type ReportTone = "beginner_friendly" | "technical" | "concise";
@@ -21,15 +21,15 @@ export type User = {
 };
 
 export type UserProfile = {
-  readonly id: string;
-  readonly userId: string;
+  readonly id?: string;
+  readonly userId?: string;
   readonly investmentStyle: InvestmentStyle;
   readonly riskTolerance: RiskTolerance;
   readonly experienceLevel: ExperienceLevel;
   readonly interestedSectors: readonly string[];
   readonly watchThemes: readonly string[];
-  readonly preferenceModel: Record<string, unknown>;
-  readonly updatedAt: string;
+  readonly preferenceModel?: Record<string, unknown>;
+  readonly updatedAt?: string;
 };
 
 export type WatchlistItem = {
@@ -46,7 +46,7 @@ export type Watchlist = {
 
 export type AgentStatus = {
   readonly agentName: string;
-  readonly status: AgentRunStatus;
+  readonly status: AgentStatusValue;
   readonly startedAt: string | null;
   readonly completedAt: string | null;
 };
@@ -63,7 +63,7 @@ export type NewsResult = {
   readonly publishedAt: string;
 };
 
-export type PriceHistoryPoint = {
+export type PricePoint = {
   readonly date: string;
   readonly close: number;
 };
@@ -80,19 +80,23 @@ export type BollingerBands = {
   readonly lower: number;
 };
 
+export type TechIndicators = {
+  readonly sma20: number;
+  readonly sma50: number;
+  readonly rsi14: number;
+  readonly macd: MACD;
+  readonly bollingerBands: BollingerBands;
+};
+
 export type StockResult = {
   readonly id: string;
   readonly researchId: string;
   readonly symbol: string;
   readonly closingPrice: number;
   readonly changePercent: number;
-  readonly sma20: number;
-  readonly sma50: number;
-  readonly rsi14: number;
-  readonly macd: MACD;
-  readonly bollingerBands: BollingerBands;
   readonly trend: Trend;
-  readonly priceHistory: readonly PriceHistoryPoint[];
+  readonly indicators: TechIndicators;
+  readonly priceHistory: readonly PricePoint[];
   readonly fetchedAt: string;
 };
 
@@ -174,10 +178,43 @@ export type UserFeedback = {
   readonly createdAt: string;
 };
 
+// ===== Agent name mapping =====
+export type AgentNameKey =
+  | "user-profile-agent"
+  | "news-agent"
+  | "stock-agent"
+  | "sentiment-agent"
+  | "risk-agent"
+  | "report-agent";
+
+const agentDisplayNames: Record<AgentNameKey, string> = {
+  "user-profile-agent": "User Profile",
+  "news-agent": "News",
+  "stock-agent": "Stock",
+  "sentiment-agent": "Sentiment",
+  "risk-agent": "Risk Assessment",
+  "report-agent": "Report",
+};
+
+export const formatAgentName = (name: string): string =>
+  agentDisplayNames[name as AgentNameKey] ?? name;
+
 // API request/response types
 export type AddSymbolRequest = {
   readonly symbol: string;
   readonly market: Market;
+};
+
+export type AddSymbolResponse = {
+  readonly success: boolean;
+  readonly symbol: string;
+  readonly market: Market;
+  readonly addedAt: string;
+};
+
+export type RemoveSymbolResponse = {
+  readonly success: boolean;
+  readonly symbol: string;
 };
 
 export type UpdateProfileRequest = {

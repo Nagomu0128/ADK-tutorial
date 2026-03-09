@@ -1,12 +1,14 @@
 import type {
   AddSymbolRequest,
+  AddSymbolResponse,
   DailyResearch,
   FeedbackRequest,
+  RemoveSymbolResponse,
   ResearchHistoryItem,
   UpdateProfileRequest,
+  UserFeedback,
   UserProfile,
   Watchlist,
-  AgentStatus,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
@@ -15,11 +17,24 @@ const jsonHeaders = {
   "Content-Type": "application/json",
 } as const;
 
+/**
+ * Get the current Firebase ID token for authenticated requests.
+ * Returns null if no user is signed in.
+ */
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  // Dynamic import to avoid SSR issues
+  const { getIdToken } = await import("./auth");
+  const token = await getIdToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
+  const authHeaders = await getAuthHeaders();
   const response = await fetch(`${API_BASE}${url}`, {
     ...init,
     headers: {
       ...jsonHeaders,
+      ...authHeaders,
       ...init?.headers,
     },
   });
@@ -31,30 +46,32 @@ const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
 
 // ===== Research =====
 
-export const triggerResearch = (): Promise<DailyResearch> =>
-  fetchJson("/v1/research", { method: "POST" });
+export const triggerResearch = (date?: string): Promise<DailyResearch> =>
+  fetchJson("/v1/research", {
+    method: "POST",
+    body: JSON.stringify({ date }),
+  });
 
 export const getResearch = (researchId: string): Promise<DailyResearch> =>
   fetchJson(`/v1/research/${researchId}`);
 
-export const getResearchStatus = (researchId: string): Promise<{ agentStatuses: readonly AgentStatus[] }> =>
-  fetchJson(`/v1/research/${researchId}/status`);
-
-export const getResearchHistory = (): Promise<readonly ResearchHistoryItem[]> =>
-  fetchJson("/v1/research/history");
+export const getResearchHistory = async (): Promise<readonly ResearchHistoryItem[]> => {
+  const result = await fetchJson<{ history: readonly ResearchHistoryItem[] }>("/v1/research/history");
+  return result.history;
+};
 
 // ===== Watchlist =====
 
 export const getWatchlist = (): Promise<Watchlist> =>
   fetchJson("/v1/watchlist");
 
-export const addSymbol = (body: AddSymbolRequest): Promise<Watchlist> =>
+export const addSymbol = (body: AddSymbolRequest): Promise<AddSymbolResponse> =>
   fetchJson("/v1/watchlist/symbols", {
     method: "POST",
     body: JSON.stringify(body),
   });
 
-export const removeSymbol = (symbol: string): Promise<void> =>
+export const removeSymbol = (symbol: string): Promise<RemoveSymbolResponse> =>
   fetchJson(`/v1/watchlist/symbols/${encodeURIComponent(symbol)}`, {
     method: "DELETE",
   });
@@ -72,7 +89,7 @@ export const updateProfile = (body: UpdateProfileRequest): Promise<UserProfile> 
 
 // ===== Feedback =====
 
-export const sendFeedback = (body: FeedbackRequest): Promise<void> =>
+export const sendFeedback = (body: FeedbackRequest): Promise<UserFeedback> =>
   fetchJson("/v1/feedback", {
     method: "POST",
     body: JSON.stringify(body),

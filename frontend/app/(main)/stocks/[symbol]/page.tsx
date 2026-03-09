@@ -56,7 +56,7 @@ const StockDetailPage = (props: StockDetailPageProps) => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="space-y-6 p-6">
+      <div className="space-y-4 p-4 sm:space-y-6 sm:p-6">
         {/* Back nav + title */}
         <div className="flex items-center gap-4">
           <Link
@@ -110,15 +110,15 @@ const StockDetailPage = (props: StockDetailPageProps) => {
           >
             <div className="space-y-2.5">
               {[
-                { label: "SMA 20", value: isJP ? `\u00a5${stock.sma20.toLocaleString()}` : `$${stock.sma20.toFixed(2)}`, group: "MA" },
-                { label: "SMA 50", value: isJP ? `\u00a5${stock.sma50.toLocaleString()}` : `$${stock.sma50.toFixed(2)}`, group: "MA" },
-                { label: "RSI (14)", value: stock.rsi14.toFixed(1), highlight: stock.rsi14 > 70 || stock.rsi14 < 30, group: "Momentum" },
-                { label: "MACD Line", value: stock.macd.line.toFixed(2), group: "MACD" },
-                { label: "MACD Signal", value: stock.macd.signal.toFixed(2), group: "MACD" },
-                { label: "MACD Hist", value: stock.macd.histogram.toFixed(2), group: "MACD" },
-                { label: "BB Upper", value: isJP ? `\u00a5${stock.bollingerBands.upper.toLocaleString()}` : `$${stock.bollingerBands.upper.toFixed(2)}`, group: "BB" },
-                { label: "BB Middle", value: isJP ? `\u00a5${stock.bollingerBands.middle.toLocaleString()}` : `$${stock.bollingerBands.middle.toFixed(2)}`, group: "BB" },
-                { label: "BB Lower", value: isJP ? `\u00a5${stock.bollingerBands.lower.toLocaleString()}` : `$${stock.bollingerBands.lower.toFixed(2)}`, group: "BB" },
+                { label: "SMA 20", value: isJP ? `\u00a5${stock.indicators.sma20.toLocaleString()}` : `$${stock.indicators.sma20.toFixed(2)}`, group: "MA" },
+                { label: "SMA 50", value: isJP ? `\u00a5${stock.indicators.sma50.toLocaleString()}` : `$${stock.indicators.sma50.toFixed(2)}`, group: "MA" },
+                { label: "RSI (14)", value: stock.indicators.rsi14.toFixed(1), highlight: stock.indicators.rsi14 > 70 || stock.indicators.rsi14 < 30, group: "Momentum" },
+                { label: "MACD Line", value: stock.indicators.macd.line.toFixed(2), group: "MACD" },
+                { label: "MACD Signal", value: stock.indicators.macd.signal.toFixed(2), group: "MACD" },
+                { label: "MACD Hist", value: stock.indicators.macd.histogram.toFixed(2), group: "MACD" },
+                { label: "BB Upper", value: isJP ? `\u00a5${stock.indicators.bollingerBands.upper.toLocaleString()}` : `$${stock.indicators.bollingerBands.upper.toFixed(2)}`, group: "BB" },
+                { label: "BB Middle", value: isJP ? `\u00a5${stock.indicators.bollingerBands.middle.toLocaleString()}` : `$${stock.indicators.bollingerBands.middle.toFixed(2)}`, group: "BB" },
+                { label: "BB Lower", value: isJP ? `\u00a5${stock.indicators.bollingerBands.lower.toLocaleString()}` : `$${stock.indicators.bollingerBands.lower.toFixed(2)}`, group: "BB" },
               ].map((ind) => (
                 <div key={ind.label} className="flex items-center justify-between rounded-lg px-1 py-0.5">
                   <span className="text-[11px] text-slate-500">{ind.label}</span>

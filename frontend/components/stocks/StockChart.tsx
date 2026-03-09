@@ -10,12 +10,12 @@ import {
   CartesianGrid,
 } from "recharts";
 import Card from "@/components/ui/Card";
-import type { PriceHistoryPoint } from "@/lib/types";
+import type { PricePoint } from "@/lib/types";
 import { format } from "date-fns";
 
 type StockChartProps = {
   readonly symbol: string;
-  readonly priceHistory: readonly PriceHistoryPoint[];
+  readonly priceHistory: readonly PricePoint[];
   readonly trend?: "bullish" | "bearish" | "neutral";
 };
 

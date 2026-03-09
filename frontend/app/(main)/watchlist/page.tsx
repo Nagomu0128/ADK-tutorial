@@ -27,7 +27,7 @@ const WatchlistPage = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="mb-8 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 text-emerald-400 ring-1 ring-emerald-500/20">
             <List size={18} />

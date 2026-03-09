@@ -2,7 +2,8 @@
 
 import { clsx } from "clsx";
 import { CheckCircle2, Loader2, Clock, XCircle, ChevronRight } from "lucide-react";
-import type { AgentStatus as AgentStatusType, AgentRunStatus } from "@/lib/types";
+import type { AgentStatus as AgentStatusType, AgentStatusValue } from "@/lib/types";
+import { formatAgentName } from "@/lib/types";
 import Card from "@/components/ui/Card";
 
 type AgentStatusProps = {
@@ -10,7 +11,7 @@ type AgentStatusProps = {
 };
 
 const statusConfig: Record<
-  AgentRunStatus,
+  AgentStatusValue,
   { icon: React.ReactNode; color: string; bgColor: string; borderColor: string; label: string; glowColor: string }
 > = {
   completed: {
@@ -74,7 +75,7 @@ const AgentStatusItem = ({
       </div>
       {/* Agent name */}
       <span className="text-center text-[11px] font-medium text-slate-300 leading-tight">
-        {agent.agentName}
+        {formatAgentName(agent.agentName)}
       </span>
       {/* Status label */}
       <span className={clsx("text-[10px] font-medium", config.color)}>
